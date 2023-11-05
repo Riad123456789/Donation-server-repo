@@ -33,7 +33,8 @@ async function run() {
     const FoodCollection = client.db("FoodDB").collection("Featured Foods");
 
 
-    app.get("/api/v1/FeaturedFoods", async (req, res) => {
+
+    app.get("/FeaturedFoods", async (req, res) => {
       const cursor = FoodCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -41,14 +42,41 @@ async function run() {
     })
 
 
+    // http://localhost:5000/FeaturedFoods/foodName?food_name=Spaghetti Carbonara&sortField=food_quantity&sortOrder=asc
+    // http://localhost:5000/FeaturedFoods/foodName?sortField=food_quantity&sortOrder=desc
+
+    app.get("/FeaturedFoods/foodName", async (req, res) => {
+
+      let query = {}
+      let sort = {}
+
+      const foodName = req.query.food_name;
+      const sortField = req.query.sortField;
+      const sortOrder = req.query.sortOrder;
+
+      if (foodName) {
+        query.food_name = foodName;
+      }
+      if (sortField && sortOrder) {
+
+        sort[sortField] = sortOrder
+      }
+      const cursor = FoodCollection.find(query).sort(sort);
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+
+
+
+
+
 
     app.post('/AddFood', async (req, res) => {
       const AddFood = req.body;
-
-      console.log(AddFood)
       const result = await FoodCollection.insertOne(AddFood);
       res.send(result)
-     
+
     })
 
 
