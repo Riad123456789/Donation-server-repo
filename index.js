@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
 
     const FoodCollection = client.db("FoodDB").collection("Featured Foods");
+    const RequestFoodCollection = client.db("FoodDB").collection("Food Name");
 
 
     app.get("/FeaturedFoods", async (req, res) => {
@@ -85,6 +86,15 @@ async function run() {
       res.send(result)
 
     })
+
+    app.post('/RequestFood', async (req, res) => {
+      const request = req.body;
+      const result = await RequestFoodCollection.insertOne(request);
+      res.send(result)
+
+    })
+
+
 
 
     await client.db("admin").command({ ping: 1 });
