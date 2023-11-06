@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.PORT || 5000;
 
@@ -32,17 +32,25 @@ async function run() {
     const FoodCollection = client.db("FoodDB").collection("Featured Foods");
 
 
-
     app.get("/FeaturedFoods", async (req, res) => {
       const cursor = FoodCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-
     })
 
 
 
-    // http://localhost:5000/FeaturedFoods/foodName?food_name=Spaghetti Carbonara&sortField=food_quantity&sortOrder=asc
+
+    app.get("/FeaturedFoodss/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await FoodCollection.findOne(query);
+      res.send(result);
+    });
+
+
+
+    // http://localhost:5000/FeaturedFoods/foodName?foodName=Spaghetti Carbonara&sortField=food_quantity&sortOrder=asc
     // http://localhost:5000/FeaturedFoods/foodName?sortField=food_quantity&sortOrder=desc
 
     app.get("/FeaturedFoods/foodName", async (req, res) => {
@@ -50,12 +58,12 @@ async function run() {
       let query = {}
       let sort = {}
 
-      const foodName = req.query.food_name;
+      const foodName = req.query.foodName;
       const sortField = req.query.sortField;
       const sortOrder = req.query.sortOrder;
 
       if (foodName) {
-        query.food_name = foodName;
+        query.foodName = foodName;
       }
       if (sortField && sortOrder) {
 
@@ -71,18 +79,12 @@ async function run() {
 
 
 
-
     app.post('/AddFood', async (req, res) => {
       const AddFood = req.body;
       const result = await FoodCollection.insertOne(AddFood);
       res.send(result)
 
     })
-
-
-
-
-
 
 
     await client.db("admin").command({ ping: 1 });
