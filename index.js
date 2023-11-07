@@ -40,8 +40,6 @@ async function run() {
     })
 
 
-
-
     app.get("/FeaturedFoodss/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -50,7 +48,13 @@ async function run() {
     });
 
 
+    app.get("/requestedFood", async (req, res) => {
+      const cursor = RequestFoodCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
 
+   
     // http://localhost:5000/FeaturedFoods/foodName?foodName=Spaghetti Carbonara&sortField=food_quantity&sortOrder=asc
     // http://localhost:5000/FeaturedFoods/foodName?sortField=food_quantity&sortOrder=desc
 
@@ -67,10 +71,44 @@ async function run() {
         query.foodName = foodName;
       }
       if (sortField && sortOrder) {
-
         sort[sortField] = sortOrder
       }
       const cursor = FoodCollection.find(query).sort(sort);
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+
+
+    // http://localhost:5000/FeaturedFoods/AddFood?DonatorEmail=riad1@gmail.com
+
+    app.get("/FeaturedFoods/AddFood", async (req, res) => {
+
+      let query = {}
+      const DonatorEmail = req.query.DonatorEmail
+
+      if (DonatorEmail) {
+        query.DonatorEmail = DonatorEmail
+      }
+      const cursor = FoodCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+
+
+
+
+
+    app.get("/requestedFood/request", async (req, res) => {
+
+      let query = {}
+      const DonatorEmail = req.query.DonatorEmail
+
+      if (DonatorEmail) {
+        query.DonatorEmail = DonatorEmail
+      }
+      const cursor = RequestFoodCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
 
@@ -93,6 +131,48 @@ async function run() {
       res.send(result)
 
     })
+
+
+
+    app.put('/FeaturedFoods/Ubdate/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const food = req.body;
+      const options = { upsert: true };
+      const  ubdateFood = {
+        $set: {
+
+          foodName: food.foodName,
+          foodImage: food.foodImage,
+          PickupLocation: food.PickupLocation,
+          DonatorName: food.DonatorName,
+          DonatorImage: food.DonatorImage,
+          DonatorEmail: food.DonatorEmail,
+          ExpiredDate: food.ExpiredDate,
+          FoodQuantity: food.FoodQuantity,
+          AdditionalNotes: food.AdditionalNotes,
+        }
+      }
+
+      const result = await FoodCollection.updateOne(filter, ubdateFood, options)
+      res.send(result)
+    })
+
+
+
+
+    app.delete("/FeaturedFoods/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await FoodCollection.deleteOne(query);
+      res.send(result);
+
+    })
+
+
+
+
 
 
 
