@@ -54,9 +54,19 @@ async function run() {
       res.send(result);
     })
 
-   
-    // http://localhost:5000/FeaturedFoods/foodName?foodName=Spaghetti Carbonara&sortField=food_quantity&sortOrder=asc
-    // http://localhost:5000/FeaturedFoods/foodName?sortField=food_quantity&sortOrder=desc
+
+
+    app.get("/requestedFoodd/:FoodName", async (req, res) => {
+
+      const FoodName = req.params.FoodName
+      const query = { FoodName: FoodName };
+      const cursor = RequestFoodCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+
+
 
     app.get("/FeaturedFoods/foodName", async (req, res) => {
 
@@ -103,10 +113,10 @@ async function run() {
     app.get("/requestedFood/request", async (req, res) => {
 
       let query = {}
-      const DonatorEmail = req.query.DonatorEmail
+      const RequesterEmail = req.query.RequesterEmail
 
-      if (DonatorEmail) {
-        query.DonatorEmail = DonatorEmail
+      if (RequesterEmail) {
+        query.RequesterEmail = RequesterEmail
       }
       const cursor = RequestFoodCollection.find(query);
       const result = await cursor.toArray();
@@ -117,13 +127,30 @@ async function run() {
 
 
 
+    //  http://localhost:5000/requestedFood/FoodName?FoodName=
 
+    app.get("/requestedFood/FoodName", async (req, res) => {
+
+      let query = {}
+      const FoodName = req.query.FoodName
+
+      if (FoodName) {
+        query.FoodName = FoodName
+      }
+      const cursor = RequestFoodCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+
+ 
     app.post('/AddFood', async (req, res) => {
       const AddFood = req.body;
       const result = await FoodCollection.insertOne(AddFood);
       res.send(result)
 
     })
+
 
     app.post('/RequestFood', async (req, res) => {
       const request = req.body;
@@ -140,7 +167,7 @@ async function run() {
       const filter = { _id: new ObjectId(id) }
       const food = req.body;
       const options = { upsert: true };
-      const  ubdateFood = {
+      const ubdateFood = {
         $set: {
 
           foodName: food.foodName,
@@ -162,10 +189,46 @@ async function run() {
 
 
 
-    app.delete("/FeaturedFoods/:id", async (req, res) => {
+    app.patch('/RequestFood/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const update = req.body;
+      // console.log(update)
+      const updateDoc = {
+        $set: {
+          FoodStatus: update.FoodStatus,
+        }
+      }
+      const result = await RequestFoodCollection.updateOne(filter, updateDoc)
+      res.send(result)
+
+    })
+
+
+
+
+    // app.delete("/FeaturedFoods/deleted/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) };
+    //   const result = await FoodCollection.deleteOne(query);
+    //   res.send(result);
+
+    // })
+
+
+    app.delete("/RequestFood/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = await FoodCollection.deleteOne(query);
+      const result = await RequestFoodCollection.deleteOne(query);
+      res.send(result);
+
+    })
+
+
+    app.delete("/RequestFood/deleted/:RequesterEmail", async (req, res) => {
+      const RequesterEmail = req.params.RequesterEmail
+      const query = { RequesterEmail: RequesterEmail };
+      const result = await RequestFoodCollection.deleteOne(query);
       res.send(result);
 
     })
