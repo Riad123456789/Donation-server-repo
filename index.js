@@ -1,7 +1,9 @@
 const express = require('express')
 const cors = require("cors");
+require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
+
 const port = process.env.PORT || 5000;
 
 
@@ -9,13 +11,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// riad80717
-// T1VZ2SS8FdPSufQc
 
-
-
-
-const uri = "mongodb+srv://riad80717:T1VZ2SS8FdPSufQc@cluster0.vifd4px.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.USER_BD}:${process.env.PASS_DB}@cluster0.vifd4px.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -143,7 +140,7 @@ async function run() {
 
     })
 
- 
+
     app.post('/AddFood', async (req, res) => {
       const AddFood = req.body;
       const result = await FoodCollection.insertOne(AddFood);
@@ -158,7 +155,6 @@ async function run() {
       res.send(result)
 
     })
-
 
 
     app.put('/FeaturedFoods/Ubdate/:id', async (req, res) => {
@@ -186,9 +182,6 @@ async function run() {
       res.send(result)
     })
 
-
-
-
     app.patch('/RequestFood/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
@@ -204,18 +197,6 @@ async function run() {
 
     })
 
-
-
-
-    // app.delete("/FeaturedFoods/deleted/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: new ObjectId(id) };
-    //   const result = await FoodCollection.deleteOne(query);
-    //   res.send(result);
-
-    // })
-
-
     app.delete("/RequestFood/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -224,7 +205,6 @@ async function run() {
 
     })
 
-
     app.delete("/RequestFood/deleted/:RequesterEmail", async (req, res) => {
       const RequesterEmail = req.params.RequesterEmail
       const query = { RequesterEmail: RequesterEmail };
@@ -232,10 +212,6 @@ async function run() {
       res.send(result);
 
     })
-
-
-
-
 
 
 
