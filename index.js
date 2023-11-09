@@ -63,28 +63,34 @@ async function run() {
     })
 
 
-
+    // http://localhost:5000/FeaturedFoods/foodName?foodName=Pizza
+    // http://localhost:5000/FeaturedFoods/foodName?FoodStatus=available
 
     app.get("/FeaturedFoods/foodName", async (req, res) => {
-
-      let query = {}
-      let sort = {}
-
+      let query = {};
+      let sort = {};
+    
       const foodName = req.query.foodName;
       const sortField = req.query.sortField;
       const sortOrder = req.query.sortOrder;
-
+      const FoodStatus = req.query.FoodStatus;
+    
       if (foodName) {
         query.foodName = foodName;
       }
       if (sortField && sortOrder) {
-        sort[sortField] = sortOrder
+        sort[sortField] = sortOrder;
       }
+      if (FoodStatus && FoodStatus == 'available') {
+        query.FoodStatus = 'available';
+      }
+    
       const cursor = FoodCollection.find(query).sort(sort);
       const result = await cursor.toArray();
       res.send(result);
+    });
+    
 
-    })
 
 
     // http://localhost:5000/FeaturedFoods/AddFood?DonatorEmail=riad1@gmail.com
@@ -141,6 +147,8 @@ async function run() {
     })
 
 
+
+
     app.post('/AddFood', async (req, res) => {
       const AddFood = req.body;
       const result = await FoodCollection.insertOne(AddFood);
@@ -181,6 +189,7 @@ async function run() {
       const result = await FoodCollection.updateOne(filter, ubdateFood, options)
       res.send(result)
     })
+    /////////////
 
     app.patch('/RequestFood/:id', async (req, res) => {
       const id = req.params.id;
@@ -197,13 +206,29 @@ async function run() {
 
     })
 
-    app.delete("/RequestFood/:id", async (req, res) => {
+
+
+
+
+    app.delete("/FeaturedFoods/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = await RequestFoodCollection.deleteOne(query);
+      const result = await FoodCollection.deleteOne(query);
       res.send(result);
 
     })
+
+
+    ////////////
+    app.delete("/FeaturedFoods/:DonatorEmail", async (req, res) => {
+      const DonatorEmail = req.params.DonatorEmail;
+      const query = { DonatorEmail: DonatorEmail };
+      const result = await FoodCollection.deleteOne(query);
+      res.send(result);
+
+    })
+
+
 
     app.delete("/RequestFood/deleted/:RequesterEmail", async (req, res) => {
       const RequesterEmail = req.params.RequesterEmail
@@ -212,6 +237,11 @@ async function run() {
       res.send(result);
 
     })
+
+
+
+
+
 
 
 
