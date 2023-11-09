@@ -37,6 +37,14 @@ async function run() {
     })
 
 
+    app.get("/FeaturedFoods/foodName/:foodName", async (req, res) => {
+      const foodName = req.params.foodName;
+      const query = { foodName: foodName };
+      const result = await FoodCollection.findOne(query);
+      res.send(result);
+    });
+
+
     app.get("/FeaturedFoodss/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -69,12 +77,12 @@ async function run() {
     app.get("/FeaturedFoods/foodName", async (req, res) => {
       let query = {};
       let sort = {};
-    
+
       const foodName = req.query.foodName;
       const sortField = req.query.sortField;
       const sortOrder = req.query.sortOrder;
       const FoodStatus = req.query.FoodStatus;
-    
+
       if (foodName) {
         query.foodName = foodName;
       }
@@ -84,12 +92,12 @@ async function run() {
       if (FoodStatus && FoodStatus == 'available') {
         query.FoodStatus = 'available';
       }
-    
+
       const cursor = FoodCollection.find(query).sort(sort);
       const result = await cursor.toArray();
       res.send(result);
     });
-    
+
 
 
 
@@ -109,17 +117,35 @@ async function run() {
 
     })
 
-
-
-
-
     app.get("/requestedFood/request", async (req, res) => {
-
-      let query = {}
-      const RequesterEmail = req.query.RequesterEmail
+      let query = {};
+      const RequesterEmail = req.query.RequesterEmail;
 
       if (RequesterEmail) {
-        query.RequesterEmail = RequesterEmail
+        query.RequesterEmail = RequesterEmail;
+        const cursor = RequestFoodCollection.find(query);
+        const result = await cursor.toArray();
+        res.send(result);
+      }
+    });
+
+
+
+
+
+
+    app.get("/requestedFood/id", async (req, res) => {
+
+      let query = {}
+      const FoodId
+        = req.query.FoodId
+
+
+      if (FoodId
+      ) {
+        query.FoodId
+          = FoodId
+
       }
       const cursor = RequestFoodCollection.find(query);
       const result = await cursor.toArray();
@@ -145,6 +171,7 @@ async function run() {
       res.send(result);
 
     })
+
 
 
 
@@ -191,17 +218,31 @@ async function run() {
     })
     /////////////
 
-    app.patch('/RequestFood/:id', async (req, res) => {
+
+    // app.patch('/RequestFood/:id', async (req, res) => {
+    //   const id = req.params.id;
+    //   const filter = { _id: new ObjectId(id) }
+    //   const update = req.body;
+    //   const updateDoc = {
+    //     $set: {
+    //       FoodStatus: update.FoodStatus,
+    //     }
+    //   }
+    //   const result = await RequestFoodCollection.updateOne(filter, updateDoc)
+    //   res.send(result)
+
+    // })
+/////////////////////////////////////////////////////////////////////////////
+    app.patch('/FeaturedFoods/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const update = req.body;
-      // console.log(update)
       const updateDoc = {
         $set: {
           FoodStatus: update.FoodStatus,
         }
       }
-      const result = await RequestFoodCollection.updateOne(filter, updateDoc)
+      const result = await FoodCollection.updateOne(filter, updateDoc)
       res.send(result)
 
     })
